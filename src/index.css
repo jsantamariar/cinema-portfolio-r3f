@@ -30,4 +30,5 @@ body {
   font-family: Kind_Sans_Thin;
   margin: 0;
   background-color: #fff;
+  overflow-y: "hidden";
 }

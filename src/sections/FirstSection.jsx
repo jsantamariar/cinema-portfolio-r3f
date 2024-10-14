@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { ContactShadows, Float, Html, useScroll } from "@react-three/drei";
+import { Float, Html, useScroll } from "@react-three/drei";
 import { motion } from "framer-motion";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
@@ -8,7 +8,7 @@ import { SonyCamera } from "../components/SonyCamera";
 import { CinemaLight } from "../components/CinemaLight";
 import { Drone } from "../components/Drone";
 
-const FirstSection = ({ isMobile }) => {
+const FirstSection = ({ isMobile, viewport }) => {
   const isComplete = useAppStore((state) => state.isComplete);
   const scrollData = useScroll();
 
@@ -23,69 +23,110 @@ const FirstSection = ({ isMobile }) => {
   const [cinemaLightHovered, setCinemaLightHovered] = useState(false);
   const [droneHovered, setDroneHovered] = useState(false);
   const [opacity, setOpacity] = useState(0);
+  const [currentSection, setCurrentSection] = useState(1);
+  //   const [isScrollAllowed, setIsScrollAllowed] = useState(false);
+  const [isShowCameraText, setIsShowCameraText] = useState(false);
+  const [isShowLightText, setIsShowLightText] = useState(false);
+  const [isShowDroneText, setIsShowDroneText] = useState(false);
 
-  const onCameraEnter = () => setCameraHovered(true);
-  const onCameraLeave = () => setCameraHovered(false);
+  const onHover = (type) => {
+    switch (type) {
+      case "camera":
+        setCameraHovered(true);
+        setIsShowCameraText(true);
+        setIsShowLightText(false);
+        setIsShowDroneText(false);
+        break;
+      case "light":
+        setCinemaLightHovered(true);
+        setIsShowLightText(true);
+        setIsShowCameraText(false);
+        setIsShowDroneText(false);
+        break;
+      case "drone":
+        setDroneHovered(true);
+        setIsShowDroneText(true);
+        setIsShowCameraText(false);
+        setIsShowLightText(false);
+        break;
+      default:
+        setCameraHovered(false);
+        setCinemaLightHovered(false);
+        setDroneHovered(false);
+        setIsShowCameraText(false);
+        setIsShowLightText(false);
+        setIsShowDroneText(false);
+        break;
+    }
+  };
 
-  const onCinemaLightEnter = () => setCinemaLightHovered(true);
-  const onCinemaLightLeave = () => setCinemaLightHovered(false);
+  const onLeave = (type) => {
+    switch (type) {
+      case "camera":
+        setCameraHovered(false);
+        setIsShowCameraText(false);
+        break;
+      case "light":
+        setCinemaLightHovered(false);
+        setIsShowLightText(false);
+        break;
+      case "drone":
+        setDroneHovered(false);
+        setIsShowDroneText(false);
+        break;
+      default:
+        setCameraHovered(false);
+        setCinemaLightHovered(false);
+        setDroneHovered(false);
+        setIsShowCameraText(false);
+        setIsShowLightText(false);
+        setIsShowDroneText(false);
+        break;
+    }
+  };
 
-  const onDroneEnter = () => setDroneHovered(true);
-  const onDroneLeave = () => setDroneHovered(false);
+  useFrame(({ camera, ...state }) => {
+    const t = Math.round(state.clock.getElapsedTime());
+    const scrollOpacity = 1 - scrollData.range(0, 0.05); // Rango del 0% al 10% del scroll
+    const modelOpacity = 1 - scrollData.range(0, 0.8); // Cambié el rango para que sea más largo (0% al 20%)
 
-  useFrame((state) => {
     if (scrollData) {
-      const scrollOpacity = 1 - scrollData.range(0, 0.1); // Rango del 0% al 10% del scroll
-      const modelOpacity = 1 - scrollData.range(0, 0.8); // Cambié el rango para que sea más largo (0% al 20%)
+      const section = Math.round(scrollData.offset * scrollData.pages);
+      setCurrentSection((prev) => (prev !== section ? section : prev));
 
-      // Ajustar la opacidad de título e icono de scroll
       if (titleRef.current && scrollIconRef.current) {
         titleRef.current.style.opacity = scrollOpacity;
         scrollIconRef.current.style.opacity = scrollOpacity;
       }
 
-      // Desvanecer los modelos al hacer scroll
-      if (cameraRef.current) {
-        cameraRef.current.visible = false;
+      cameraRef.current.position.z = THREE.MathUtils.lerp(
+        cameraRef.current.position.z, // Valor actual de la posición Z
+        -50 * scrollData.offset, // Valor hacia el que debe moverse la cámara (se multiplica por el offset del scroll)
+        0.05 // La velocidad de interpolación
+      );
 
-        cameraRef.current.traverse((child) => {
-          if (child.isMesh && child.material) {
-            child.material.transparent = true;
-            child.material.opacity = modelOpacity;
-          }
-        });
-      }
+      cinemaLightRef.current.position.z = THREE.MathUtils.lerp(
+        cinemaLightRef.current.position.z, // Valor actual de la posición Z
+        -50 * scrollData.offset, // Valor hacia el que debe moverse la cámara (se multiplica por el offset del scroll)
+        0.05 // La velocidad de interpolación
+      );
 
-      if (cinemaLightRef.current) {
-        cinemaLightRef.current.traverse((child) => {
-          if (child.isMesh && child.material) {
-            child.material.transparent = true;
-            child.material.opacity = modelOpacity; // Asignar opacidad basada en el scroll
-          }
-        });
-      }
-
-      if (droneRef.current) {
-        droneRef.current.traverse((child) => {
-          if (child.isMesh && child.material) {
-            child.material.transparent = true;
-            child.material.opacity = modelOpacity; // Asignar opacidad basada en el scroll
-          }
-        });
-      }
+      droneRef.current.position.z = THREE.MathUtils.lerp(
+        droneRef.current.position.z, // Valor actual de la posición Z
+        -50 * scrollData.offset, // Valor hacia el que debe moverse la cámara (se multiplica por el offset del scroll)
+        0.05 // La velocidad de interpolación
+      );
     }
-
-    const t = Math.round(state.clock.getElapsedTime());
 
     // Controlar la visibilidad de los elementos 3D basados en el tiempo
     if (t > 6) {
-      if (cameraRef.current) cameraRef.current.visible = true;
+      cameraRef.current.visible = true;
     }
     if (t > 7) {
-      if (cinemaLightRef.current) cinemaLightRef.current.visible = true;
+      cinemaLightRef.current.visible = true;
     }
     if (t > 8) {
-      if (droneRef.current) droneRef.current.visible = true;
+      droneRef.current.visible = true;
     }
 
     // Solo animar la escala y opacidad si los elementos son visibles
@@ -158,18 +199,17 @@ const FirstSection = ({ isMobile }) => {
 
   return (
     <>
-      {/* Sombra de contacto */}
-      <ContactShadows opacity={0.32} blur={5} />
+      <directionalLight position={[0, -10, 10]} intensity={0.5} color="gold" />
 
       {/* Título con animaciones de Framer Motion */}
       <Html
         ref={titleRef}
         as="div"
         className="p-4"
-        position={isMobile ? [-1.5, 2.5, 0] : [-4.4, 2, 0]}
+        position={isMobile ? [-1.5, 2.5, 0] : [-4.4, 2.5, 0]}
       >
         <motion.h1
-          className={`text-2xl lg:text-8xl text-nowrap font-bold cursor-default`}
+          className={`text-5xl lg:text-8xl text-nowrap font-bold cursor-default`}
           initial={{ opacity: 0 }}
           animate={isComplete ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 1, delay: 1 }}
@@ -177,7 +217,7 @@ const FirstSection = ({ isMobile }) => {
           Fraser Lee
         </motion.h1>
         <motion.p
-          className="font-bold text-sm lg:text-2xl text-nowrap cursor-default"
+          className="font-bold text-xl lg:text-2xl text-nowrap cursor-default"
           initial={{ opacity: 0 }}
           animate={isComplete ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 1, delay: 1.5 }}
@@ -185,7 +225,7 @@ const FirstSection = ({ isMobile }) => {
           Videographer
         </motion.p>
         <motion.p
-          className="font-bold text-sm lg:text-2xl text-nowrap cursor-default"
+          className="font-bold text-xl lg:text-2xl text-nowrap cursor-default"
           initial={{ opacity: 0 }}
           animate={isComplete ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 1, delay: 2 }}
@@ -208,8 +248,8 @@ const FirstSection = ({ isMobile }) => {
             position={isMobile ? [-2, 0, -4] : [-3, 0, -4]}
             scale={0.005}
             visible={false}
-            onPointerEnter={onCameraEnter}
-            onPointerLeave={onCameraLeave}
+            onPointerEnter={() => onHover("camera")}
+            onPointerLeave={() => onLeave("camera")}
           />
         </Float>
 
@@ -225,8 +265,11 @@ const FirstSection = ({ isMobile }) => {
             position={[-0, 0, -4]}
             scale={0.005}
             visible={false}
-            onPointerEnter={onCinemaLightEnter}
-            onPointerLeave={onCinemaLightLeave}
+            onPointerEnter={() => {
+              onHover("light");
+              console.log("entry");
+            }}
+            onPointerLeave={() => onLeave("light")}
           />
         </Float>
 
@@ -242,38 +285,90 @@ const FirstSection = ({ isMobile }) => {
             position={isMobile ? [1.5, -0.4, -3] : [3, 0, -4]}
             scale={0.005}
             visible={false}
-            onPointerEnter={onDroneEnter}
-            onPointerLeave={onDroneLeave}
+            onPointerEnter={(e) => {
+              e.stopPropagation();
+              onHover("drone");
+            }}
+            onPointerLeave={(e) => {
+              e.stopPropagation();
+              onLeave("drone");
+            }}
           />
         </Float>
+
         {/* Scroll button */}
-        {isComplete && (
-          <Html as="div">
-            <div
-              ref={scrollIconRef}
-              className="absolute xs:bottom-10 lg:bottom-0 w-full flex justify-center items-center"
-            >
-              <a href="#about">
-                <div
-                  className={`w-[35px] h-[46px] lg:w-[35px] lg:h-[64px] rounded-3xl border-4 border-black flex justify-center items-start p-2`}
-                >
-                  <motion.div
-                    animate={{
-                      y: isMobile ? [0, 8, 0] : [0, 24, 0],
-                    }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatType: "loop",
-                    }}
-                    className="w-3 h-3 rounded-full bg-black"
-                  />
-                </div>
-              </a>
-            </div>{" "}
-          </Html>
-        )}
+        <Html as="div">
+          <div className="absolute xs:bottom-10 lg:bottom-0 w-full flex justify-center items-center">
+            <a href="#">
+              <motion.div
+                ref={scrollIconRef}
+                initial={{ opacity: 0 }}
+                animate={isComplete ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ duration: 1, delay: 5.5 }}
+                className={`w-[35px] h-[46px] lg:w-[35px] lg:h-[64px] rounded-3xl border-4 border-[#141414] flex justify-center items-start p-2`}
+              >
+                <motion.div
+                  animate={{
+                    y: isMobile ? [0, 8, 0] : [0, 24, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatType: "loop",
+                  }}
+                  className="w-3 h-3 rounded-full bg-[#141414]"
+                />
+              </motion.div>
+            </a>
+          </div>{" "}
+        </Html>
       </group>
+
+      {/* floating text */}
+      <Html
+        as="div"
+        position={isMobile ? [-1.5, -0.4, 0] : [-3.5, -0.4, 0]}
+        zIndexRange={[1, 0]}
+      >
+        <motion.p
+          className={` bg-[#dcdcdc] text-[#141414] bg-opacity-50 p-2 hover:scale-110 transition-transform durantion-500 rounded-full font-sans font-light text-md lg:text-xl text-nowrap select-none cursor-pointer`}
+          initial={{ opacity: 0 }}
+          animate={isShowCameraText ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+        >
+          About me
+        </motion.p>
+      </Html>
+
+      <Html
+        as="div"
+        position={isMobile ? [-0.5, 0.4, 0] : [-0.5, 0.4, 0]}
+        zIndexRange={[1, 0]}
+      >
+        <motion.p
+          className={`bg-[#dcdcdc] text-[#141414] bg-opacity-50 p-2 hover:scale-110 transition-transform durantion-500 rounded-full font-sans font-light text-md lg:text-xl text-nowrap  select-none cursor-pointer`}
+          initial={{ opacity: 0 }}
+          animate={isShowLightText ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+        >
+          Portfolio
+        </motion.p>
+      </Html>
+
+      <Html
+        as="div"
+        position={isMobile ? [1, -0.2, -4] : [4.5, -0.2, -4]}
+        zIndexRange={[1, 0]}
+      >
+        <motion.p
+          className={`bg-[#dcdcdc] text-[#141414] bg-opacity-50 p-2 hover:scale-110 transition-transform durantion-500 rounded-full font-sans font-light text-md lg:text-xl text-nowrap select-none cursor-pointer`}
+          initial={{ opacity: 0 }}
+          animate={isShowDroneText ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+        >
+          Contact me
+        </motion.p>
+      </Html>
     </>
   );
 };

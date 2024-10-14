@@ -1,9 +1,10 @@
-import React, { forwardRef, useEffect } from "react";
+import React, { forwardRef, useEffect, useRef } from "react";
 import { useGLTF, useAnimations } from "@react-three/drei";
 
 export const Drone = forwardRef((props, ref) => {
   const { nodes, materials, animations } = useGLTF("/models/drone-model.glb");
   const { actions } = useAnimations(animations, ref);
+  const hitboxRef = useRef();
 
   useEffect(() => {
     if (actions && actions["hover"]) {
@@ -19,6 +20,18 @@ export const Drone = forwardRef((props, ref) => {
 
   return (
     <group ref={ref} {...props} dispose={null}>
+      {/* Hitbox invisible */}
+      <mesh
+        ref={hitboxRef}
+        scale={[2, 2, 2]}
+        position={[0, 0.1, 0]}
+        visible={false}
+        onPointerEnter={props.onPointerEnter}
+        onPointerLeave={props.onPointerLeave}
+      >
+        <boxGeometry args={[0.1, 0.1, 0.1]} />
+        <meshBasicMaterial color="red" opacity={0} />
+      </mesh>
       <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
           <group name="root">
