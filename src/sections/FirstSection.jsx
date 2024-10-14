@@ -195,6 +195,46 @@ const FirstSection = ({ isMobile, viewport }) => {
         }
       });
     }
+
+    // Hovered animations
+    if (cameraHovered) {
+      cinemaLightRef.current.position.z = THREE.MathUtils.lerp(
+        cinemaLightRef.current.position.z,
+        -50,
+        0.05
+      );
+
+      droneRef.current.position.z = THREE.MathUtils.lerp(
+        droneRef.current.position.z,
+        -50,
+        0.05
+      );
+    }
+
+    if (cinemaLightHovered) {
+      cameraRef.current.position.z = THREE.MathUtils.lerp(
+        cameraRef.current.position.z,
+        -50,
+        0.05
+      );
+      droneRef.current.position.z = THREE.MathUtils.lerp(
+        droneRef.current.position.z,
+        -50,
+        0.05
+      );
+    }
+    if (droneHovered) {
+      cameraRef.current.position.z = THREE.MathUtils.lerp(
+        cameraRef.current.position.z,
+        -50,
+        0.05
+      );
+      cinemaLightRef.current.position.z = THREE.MathUtils.lerp(
+        cinemaLightRef.current.position.z,
+        -50,
+        0.05
+      );
+    }
   });
 
   return (
@@ -235,7 +275,7 @@ const FirstSection = ({ isMobile, viewport }) => {
       </Html>
 
       {/* Elementos 3D */}
-      <group ref={groupRef} position-y={-3}>
+      <group ref={groupRef} position-y={-3.5}>
         {/* Cámara */}
         <Float
           floatIntensity={1.5}
@@ -245,7 +285,7 @@ const FirstSection = ({ isMobile, viewport }) => {
         >
           <SonyCamera
             ref={cameraRef}
-            position={isMobile ? [-2, 0, -4] : [-3, 0, -4]}
+            position={isMobile ? [-1, 0, -4] : [-3, 0, -4]}
             scale={0.005}
             visible={false}
             onPointerEnter={() => onHover("camera")}
@@ -282,7 +322,7 @@ const FirstSection = ({ isMobile, viewport }) => {
         >
           <Drone
             ref={droneRef}
-            position={isMobile ? [1.5, -0.4, -3] : [3, 0, -4]}
+            position={isMobile ? [1, -0.4, -3] : [3, 0, -4]}
             scale={0.005}
             visible={false}
             onPointerEnter={(e) => {
@@ -327,7 +367,7 @@ const FirstSection = ({ isMobile, viewport }) => {
       {/* floating text */}
       <Html
         as="div"
-        position={isMobile ? [-1.5, -0.4, 0] : [-3.5, -0.4, 0]}
+        position={isMobile ? [-1.5, -0.9, 0] : [-3.5, -0.4, 0]}
         zIndexRange={[1, 0]}
       >
         <motion.p
@@ -342,7 +382,7 @@ const FirstSection = ({ isMobile, viewport }) => {
 
       <Html
         as="div"
-        position={isMobile ? [-0.5, 0.4, 0] : [-0.5, 0.4, 0]}
+        position={isMobile ? [-0.5, 0, 0] : [-0.5, 0.4, 0]}
         zIndexRange={[1, 0]}
       >
         <motion.p
@@ -357,7 +397,7 @@ const FirstSection = ({ isMobile, viewport }) => {
 
       <Html
         as="div"
-        position={isMobile ? [1, -0.2, -4] : [4.5, -0.2, -4]}
+        position={isMobile ? [1, -0.8, -4] : [4.5, -0.2, -4]}
         zIndexRange={[1, 0]}
       >
         <motion.p
