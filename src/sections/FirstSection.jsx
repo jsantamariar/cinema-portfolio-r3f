@@ -246,7 +246,7 @@ const FirstSection = ({ isMobile, viewport }) => {
         ref={titleRef}
         as="div"
         className="p-4"
-        position={isMobile ? [-1.5, 2.5, 0] : [-4.4, 2.5, 0]}
+        position={isMobile ? [-1.5, 3, 0] : [-4.4, 2.5, 0]}
       >
         <motion.h1
           className={`text-5xl lg:text-8xl text-nowrap font-bold cursor-default`}
@@ -275,7 +275,7 @@ const FirstSection = ({ isMobile, viewport }) => {
       </Html>
 
       {/* Elementos 3D */}
-      <group ref={groupRef} position-y={-3.5}>
+      <group ref={groupRef} position-y={-3}>
         {/* Cámara */}
         <Float
           floatIntensity={1.5}
@@ -338,7 +338,7 @@ const FirstSection = ({ isMobile, viewport }) => {
 
         {/* Scroll button */}
         <Html as="div">
-          <div className="absolute xs:bottom-10 lg:bottom-0 w-full flex justify-center items-center">
+          <div className="absolute bottom-3 lg:bottom-0 w-full flex justify-center items-center">
             <a href="#">
               <motion.div
                 ref={scrollIconRef}
@@ -364,7 +364,7 @@ const FirstSection = ({ isMobile, viewport }) => {
         </Html>
       </group>
 
-      {/* floating text */}
+      {/* Floating text */}
       <Html
         as="div"
         position={isMobile ? [-1.5, -0.9, 0] : [-3.5, -0.4, 0]}
