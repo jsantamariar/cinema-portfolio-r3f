@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import useAppStore from "../store/useAppStore";
 
-const LoadingIntro = ({ setIsComplete }) => {
+const LoadingIntro = () => {
+  const setIsComplete = useAppStore((state) => state.setIsComplete);
+
   const [count, setCount] = useState(3);
   const [visible, setVisible] = useState(true);
 

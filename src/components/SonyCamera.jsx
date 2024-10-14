@@ -1,10 +1,10 @@
-import React, { useRef } from "react";
+import React, { forwardRef } from "react";
 import { useGLTF } from "@react-three/drei";
 
-export function SonyCamera(props) {
+export const SonyCamera = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF("/models/sony-camera-model.glb");
   return (
-    <group {...props} dispose={null}>
+    <group ref={ref} {...props} dispose={null}>
       <mesh
         name="polySurface1431_plastic_matte_0"
         castShadow
@@ -49,6 +49,6 @@ export function SonyCamera(props) {
       />
     </group>
   );
-}
+});
 
 useGLTF.preload("/models/sony-camera-model.glb");

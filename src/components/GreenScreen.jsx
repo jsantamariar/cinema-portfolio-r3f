@@ -1,10 +1,10 @@
-import React, { useRef } from "react";
+import React, { forwardRef } from "react";
 import { useGLTF } from "@react-three/drei";
 
-export function GreenScreen(props) {
+export const GreenScreen = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF("/models/green-screen-model.glb");
   return (
-    <group {...props} dispose={null}>
+    <group ref={ref} {...props} dispose={null}>
       <group
         name="Cylinder_2"
         position={[0.5, 0.08, 0.87]}
@@ -80,6 +80,6 @@ export function GreenScreen(props) {
       />
     </group>
   );
-}
+});
 
 useGLTF.preload("/models/green-screen-model.glb");
